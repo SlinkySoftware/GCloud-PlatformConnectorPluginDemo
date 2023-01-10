@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.slinkytoybox.gcloud</groupId>
+    <artifactId>platformconnectorplugindemo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    
+    <name>Genesys Cloud Platform Connector Plugin Implementation Example</name>
+    <description>This is an example plugin to show how to create an extensible plugin to the Platform Connector Application</description>
+    
+    <url>https://github.com/SlinkySoftware/GCloud-PlatformConnectorPluginDemo</url>
+    <issueManagement>
+        <url>https://github.com/SlinkySoftware/GCloud-PlatformConnectorPluginDemo/issues</url>
+        <system>GitHub</system>
+    </issueManagement>
+    <scm>
+        <url>https://github.com/SlinkySoftware/GCloud-PlatformConnectorPluginDemo.git</url>
+    </scm>
+    
+    <developers>
+        <developer>
+            <name>Michael Junek</name>
+            <email>michael@juneks.com.au</email>
+        </developer>
+    </developers>
+    
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License v3.0 or later</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
+        </license>
+    </licenses>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sonarsource.scanner.maven</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <version>3.9.1.2184</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+            <version>1.18.24</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>6.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.slinkytoybox.gcloud</groupId>
+            <artifactId>platformconnectorplugin</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}-${project.version}.${git.branch.clean}.${git.commit.id.abbrev}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                </configuration>
+            </plugin>
+        
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <excludeProperties>^git.local.branch.*$</excludeProperties>
+                    <replacementProperties>
+                        <replacementProperty>
+                            <property>git.branch</property>
+                            <propertyOutputSuffix>clean</propertyOutputSuffix>
+                            <token>^([^\/]*)\/([^\/]*)$</token>
+                            <value>$1-$2</value>
+                            <regex>true</regex>
+                            <forceValueEvaluation>false</forceValueEvaluation>
+                            <transformationRules>
+                                <transformationRule>
+                                    <apply>BEFORE</apply>
+                                    <action>UPPER_CASE</action>
+                                </transformationRule>
+                                <transformationRule>
+                                    <apply>AFTER</apply>
+                                    <action>LOWER_CASE</action>
+                                </transformationRule>
+                            </transformationRules> 
+                        </replacementProperty>
+                    </replacementProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                    <injectAllReactorProjects>true</injectAllReactorProjects>
+                    <gitDescribe>
+                        <tags>true</tags>
+                        <always>true</always>
+                        <abbrev>7</abbrev>
+                        <forceLongFormat>true</forceLongFormat>
+                    </gitDescribe>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.8</version>
+                <executions>    
+                    <execution>
+                        <goals>  
+                            <goal>prepare-agent</goal>
+                            <goal>prepare-agent-integration</goal>
+                            <goal>report</goal>
+                            <goal>report-integration</goal>
+                        </goals>  
+                    </execution>
+                </executions>  
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>source-jar</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <finalName>${project.artifactId}-${project.version}.${git.branch.clean}.${git.commit.id.abbrev}</finalName>
+                            <attach>false</attach>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>Install customized file(s) on local repository</id>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <configuration>
+                            <file>${project.build.directory}/${project.build.finalName}.${project.packaging}</file>
+                            <sources>${project.build.directory}/${project.build.finalName}-sources.${project.packaging}</sources>
+                            <generatePom>true</generatePom>
+                            <pomFile>pom.xml</pomFile>
+                            <version>${project.version}</version>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            
+        </plugins>
+    </build>
+    
+</project>
