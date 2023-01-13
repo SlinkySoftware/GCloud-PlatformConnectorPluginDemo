@@ -38,7 +38,6 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class PluginConfiguration {
 
-
     @Autowired
     private ApplicationContext context;
 
@@ -53,22 +52,21 @@ public class PluginConfiguration {
 
         // Create a new properties class
         Properties pluginProperties = new Properties();
-        
+
         log.info("{}Reading configuration for plugin", logPrefix);
-        File currentJavaJarFile = new File(PluginConfiguration.class.getProtectionDomain().getCodeSource().getLocation().getPath());   
-String currentJavaJarFilePath = currentJavaJarFile.getAbsolutePath();
-String currentRootDirectoryPath = currentJavaJarFilePath.replace(currentJavaJarFile.getName(), "");
-        
-        
+        File currentJavaJarFile = new File(PluginConfiguration.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        String currentJavaJarFilePath = currentJavaJarFile.getAbsolutePath();
+        String currentRootDirectoryPath = currentJavaJarFilePath.replace(currentJavaJarFile.getName(), "");
+
         String configPath = currentRootDirectoryPath + pluginId + ".properties";
         log.trace("{}-- Scanning {}", logPrefix, configPath);
         try {
             pluginProperties.load(new FileInputStream(configPath));
         }
-        catch (IOException ex)  {
+        catch (IOException ex) {
             log.error("{}IOException encountered when opening config file. It may not exist", logPrefix, ex);
         }
-        
+
         // Create the new worker with its name, description and configuration
         log.debug("{}Creating new plugin worker", logPrefix);
         return new DemoPluginWorker(pluginId, pluginDescription, pluginProperties);

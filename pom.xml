@@ -32,10 +32,11 @@
     
     <properties>
         
-        <plugin.id>demoPlugin</plugin.id>
+        <plugin.id>demoPlugin</plugin.id>  <!-- This must be unique across all plugins loaded by the platform -->
         <plugin.class>com.slinkytoybox.gcloud.platformconnectorplugin.demo.PluginManager</plugin.class>
         <plugin.version>0.0.1</plugin.version>
         <plugin.provider>Demo Provider</plugin.provider>
+        <plugin.description>This plugin is a demo that does nothing that's of use</plugin.description>
         <plugin.dependencies/>
         
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -136,6 +137,7 @@
                             <Plugin-Class>${plugin.class}</Plugin-Class>
                             <Plugin-Version>${plugin.version}</Plugin-Version>
                             <Plugin-Provider>${plugin.provider}</Plugin-Provider>
+                            <Plugin-Description>${plugin.description}</Plugin-Description>
                             <Plugin-Dependencies>${plugin.dependencies}</Plugin-Dependencies>
                         </manifestEntries>
                     </archive>
