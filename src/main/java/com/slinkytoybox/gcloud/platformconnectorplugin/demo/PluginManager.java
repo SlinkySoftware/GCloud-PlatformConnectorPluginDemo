@@ -20,6 +20,7 @@
 package com.slinkytoybox.gcloud.platformconnectorplugin.demo;
 
 import com.slinkytoybox.gcloud.platformconnectorplugin.PlatformConnectorPlugin;
+import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthResult;
 import com.slinkytoybox.gcloud.platformconnectorplugin.request.PluginRequest;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.PluginResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -96,6 +97,11 @@ public class PluginManager extends SpringPlugin {
         @Override
         public PluginResponse getResponseFromRequest(PluginRequest request) {
             return worker.getResponseFromRequest(request);
+        }
+        
+        @Override
+        public HealthResult getPluginHealth() {
+            return worker.getPluginHealth();
         }
 
     }
