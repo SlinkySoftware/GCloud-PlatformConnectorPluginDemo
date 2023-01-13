@@ -4,8 +4,6 @@
     <groupId>com.slinkytoybox.gcloud</groupId>
     <artifactId>platformconnectorplugindemo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    
     <name>Genesys Cloud Platform Connector Plugin Implementation Example</name>
     <description>This is an example plugin to show how to create an extensible plugin to the Platform Connector Application</description>
     
@@ -33,6 +31,13 @@
     </licenses>
     
     <properties>
+        
+        <plugin.id>demoPlugin</plugin.id>
+        <plugin.class>com.slinkytoybox.gcloud.platformconnectorplugin.demo.PluginManager</plugin.class>
+        <plugin.version>0.0.1</plugin.version>
+        <plugin.provider>Demo Provider</plugin.provider>
+        <plugin.dependencies/>
+        
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -58,17 +63,22 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-                <version>1.7.36</version>    
+            <version>1.7.36</version>    
         </dependency>
         <dependency>
             <groupId>com.slinkytoybox.gcloud</groupId>
             <artifactId>platformconnectorplugin</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j-spring</artifactId>
+            <version>0.8.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}-${project.version}.${git.branch.clean}.${git.commit.id.abbrev}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -78,52 +88,65 @@
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
                 </configuration>
             </plugin>
-        
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.9.10</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
+                        <id>unzip jar file</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <unzip src="target/${project.artifactId}-${project.version}.${project.packaging}" dest="target/plugin-classes"/>
+                            </target>
+                        </configuration>
                         <goals>
-                            <goal>revision</goal>
+                            <goal>run</goal>
                         </goals>
-                        <phase>initialize</phase>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.4.2</version>
                 <configuration>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                    <excludeProperties>^git.local.branch.*$</excludeProperties>
-                    <replacementProperties>
-                        <replacementProperty>
-                            <property>git.branch</property>
-                            <propertyOutputSuffix>clean</propertyOutputSuffix>
-                            <token>^([^\/]*)\/([^\/]*)$</token>
-                            <value>$1-$2</value>
-                            <regex>true</regex>
-                            <forceValueEvaluation>false</forceValueEvaluation>
-                            <transformationRules>
-                                <transformationRule>
-                                    <apply>BEFORE</apply>
-                                    <action>UPPER_CASE</action>
-                                </transformationRule>
-                                <transformationRule>
-                                    <apply>AFTER</apply>
-                                    <action>LOWER_CASE</action>
-                                </transformationRule>
-                            </transformationRules> 
-                        </replacementProperty>
-                    </replacementProperties>
-                    <commitIdGenerationMode>full</commitIdGenerationMode>
-                    <injectAllReactorProjects>true</injectAllReactorProjects>
-                    <gitDescribe>
-                        <tags>true</tags>
-                        <always>true</always>
-                        <abbrev>7</abbrev>
-                        <forceLongFormat>true</forceLongFormat>
-                    </gitDescribe>
+                    <descriptors>
+                        <descriptor>
+                            src/main/assembly/assembly.xml
+                        </descriptor>
+                    </descriptors>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Plugin-Id>${plugin.id}</Plugin-Id>
+                            <Plugin-Class>${plugin.class}</Plugin-Class>
+                            <Plugin-Version>${plugin.version}</Plugin-Version>
+                            <Plugin-Provider>${plugin.provider}</Plugin-Provider>
+                            <Plugin-Dependencies>${plugin.dependencies}</Plugin-Dependencies>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+                <version>3.0.0</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -141,32 +164,6 @@
                 </executions>  
             </plugin>
             <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
-                <executions>
-                    <execution>
-                        <id>source-jar</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                            <finalName>${project.artifactId}-${project.version}.${git.branch.clean}.${git.commit.id.abbrev}</finalName>
-                            <attach>false</attach>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <phase>verify</phase>
-                    </execution>
-
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>3.1.0</version>
@@ -179,7 +176,6 @@
                         <phase>install</phase>
                         <configuration>
                             <file>${project.build.directory}/${project.build.finalName}.${project.packaging}</file>
-                            <sources>${project.build.directory}/${project.build.finalName}-sources.${project.packaging}</sources>
                             <generatePom>true</generatePom>
                             <pomFile>pom.xml</pomFile>
                             <version>${project.version}</version>
@@ -190,8 +186,6 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            
         </plugins>
     </build>
-    
 </project>
