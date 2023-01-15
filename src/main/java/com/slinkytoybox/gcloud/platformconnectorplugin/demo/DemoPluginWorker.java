@@ -22,6 +22,7 @@ package com.slinkytoybox.gcloud.platformconnectorplugin.demo;
 import com.slinkytoybox.gcloud.platformconnectorplugin.PlatformConnectorPlugin;
 import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthMetric;
 import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthResult;
+import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthState;
 import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthStatus;
 import com.slinkytoybox.gcloud.platformconnectorplugin.request.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.*;
@@ -85,9 +86,9 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         CreateResponse response = new CreateResponse(); // Create new response object
 
         // TODO: Modify code here to do the actual work
-        response.setRequestId(req.getRequestId());
-        response.setSuccess(Boolean.TRUE);
-        response.setObjectId("DemoCreateObjectId");
+        response.setRequestId(req.getRequestId())
+                .setSuccess(Boolean.TRUE)
+                .setObjectId("DemoCreateObjectId");
 
         // END actual work code
         log.debug("{}Returning response: {}", logPrefix, response);
@@ -108,9 +109,9 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         UpdateResponse response = new UpdateResponse(); // Create new response object
 
         // TODO: Modify code here to do the actual work
-        response.setRequestId(req.getRequestId());
-        response.setSuccess(Boolean.TRUE);
-        response.setObjectId(req.getObjectId());
+        response.setRequestId(req.getRequestId())
+                .setSuccess(Boolean.TRUE)
+                .setObjectId(req.getObjectId());
 
         // END actual work code
         log.debug("{}Returning response: {}", logPrefix, response);
@@ -138,9 +139,9 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         ReadResponse response = new ReadResponse(); // Create new response object
 
         // TODO: Modify code here to do the actual work
-        response.setRequestId(req.getRequestId());
-        response.setSuccess(Boolean.TRUE);
-        response.setObjectId("DemoReadObjectId");
+        response.setRequestId(req.getRequestId())
+                .setSuccess(Boolean.TRUE)
+                .setObjectId("DemoReadObjectId");
 
         // END actual work code
         log.debug("{}Returning response: {}", logPrefix, response);
@@ -161,9 +162,9 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         DeleteResponse response = new DeleteResponse(); // Create new response object
 
         // TODO: Modify code here to do the actual work
-        response.setRequestId(req.getRequestId());
-        response.setSuccess(Boolean.TRUE);
-        response.setObjectId(req.getObjectId());
+        response.setRequestId(req.getRequestId())
+                .setSuccess(Boolean.TRUE)
+                .setObjectId(req.getObjectId());
 
         // END actual work code
         log.debug("{}Returning response: {}", logPrefix, response);
@@ -179,9 +180,9 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
 
         // TODO: Modify code here to do the actual health checks and create metrics etc.
         Map<String, HealthStatus> componentStatus = new HashMap<>();
-        componentStatus.put("Component1", HealthStatus.HEALTHY);
-        componentStatus.put("Component2", HealthStatus.FAILED);
-        componentStatus.put("Component3", HealthStatus.WARNING);
+        componentStatus.put("Component1", new HealthStatus().setHealthState(HealthState.HEALTHY));
+        componentStatus.put("Component2", new HealthStatus().setHealthState(HealthState.FAILED).setHealthComment("Database connection down"));
+        componentStatus.put("Component3", new HealthStatus().setHealthState(HealthState.WARNING).setHealthComment("Connected to backup API instance"));
 
         List<HealthMetric> metrics = new ArrayList<>();
         metrics.add(new HealthMetric().setMetricName("responseTime").setMetricValue(100));
@@ -189,8 +190,8 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         metrics.add(new HealthMetric().setMetricName("dateTimeMetric").setMetricValue(OffsetDateTime.now()));
 
         HealthResult response = new HealthResult()
-                .setOverallStatus(HealthStatus.HEALTHY) // this is the most important thing to return
-                .setComponentStatus(componentStatus)    // component statuses are optional
+                .setOverallStatus(new HealthStatus().setHealthState(HealthState.HEALTHY)) // this is the most important thing to return
+                .setComponentStatus(componentStatus) // component statuses are optional
                 .setMetrics(metrics);                   // metrics are optional
 
         // END actual work code

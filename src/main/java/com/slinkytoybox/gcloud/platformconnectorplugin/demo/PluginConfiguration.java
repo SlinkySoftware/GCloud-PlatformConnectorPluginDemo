@@ -25,7 +25,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,11 +37,9 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class PluginConfiguration {
 
-    @Autowired
-    private ApplicationContext context;
 
     @Bean
-    public PlatformConnectorPlugin pluginInterface() {
+    public PlatformConnectorPlugin pluginInterface(ApplicationContext context) {
         final String logPrefix = "pluginInterface() - ";
         log.trace("{}Entering Method", logPrefix);
 
@@ -60,8 +57,8 @@ public class PluginConfiguration {
 
         String configPath = currentRootDirectoryPath + pluginId + ".properties";
         log.trace("{}-- Scanning {}", logPrefix, configPath);
-        try {
-            pluginProperties.load(new FileInputStream(configPath));
+        try ( FileInputStream fileStream = new FileInputStream(configPath)) {
+            pluginProperties.load(fileStream);
         }
         catch (IOException ex) {
             log.error("{}IOException encountered when opening config file. It may not exist", logPrefix, ex);
