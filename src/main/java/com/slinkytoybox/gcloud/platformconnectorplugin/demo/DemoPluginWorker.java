@@ -27,6 +27,7 @@ import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthState;
 import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthStatus;
 import com.slinkytoybox.gcloud.platformconnectorplugin.request.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.*;
+import com.slinkytoybox.gcloud.platformconnectorplugin.response.PluginResponse.ResponseStatus;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -110,7 +111,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         objectDataMap.putAll(req.getObjectDetails());
         response.setObjectDetails(objectDataMap)
                 .setRequestId(req.getRequestId())
-                .setSuccess(Boolean.TRUE)
+                .setStatus(ResponseStatus.SUCCESS)
                 .setObjectId("DemoCreateObjectId");
 
         // END actual work code
@@ -141,7 +142,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
 
         response.setObjectDetails(objectDataMap)
                 .setRequestId(req.getRequestId())
-                .setSuccess(Boolean.TRUE)
+                .setStatus(ResponseStatus.SUCCESS)
                 .setObjectId(req.getObjectId());
 
         // END actual work code
@@ -174,7 +175,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
             if (req.getObjectId().equalsIgnoreCase("notfound")) {
                 log.warn("{}Faking record not found error", logPrefix);
                 response.setErrorMessage("Record was not found");
-                response.setSuccess(false);
+                response.setStatus(ResponseStatus.RECORD_NOT_FOUND);
                 return response;
             }
         }
@@ -187,7 +188,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         objectDataMap.put("Field5", true);
 
         response.setObjectDetails(objectDataMap)
-                .setSuccess(Boolean.TRUE);
+                .setStatus(ResponseStatus.SUCCESS);
 
         // END actual work code
         log.debug("{}Returning response: {}", logPrefix, response);
@@ -209,7 +210,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
 
         // TODO: Modify code here to do the actual work
         response.setRequestId(req.getRequestId())
-                .setSuccess(Boolean.TRUE)
+                .setStatus(ResponseStatus.SUCCESS)
                 .setObjectId(req.getObjectId());
 
         // END actual work code
