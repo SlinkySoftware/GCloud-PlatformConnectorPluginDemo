@@ -4,7 +4,7 @@
     <groupId>com.slinkytoybox.gcloud</groupId>
     <artifactId>platformconnectorplugindemo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Genesys Cloud Platform Connector Plugin Implementation Example</name>
+    <name>Genesys Cloud Platform Connector Example Plugin</name>
     <description>This is an example plugin to show how to create an extensible plugin to the Platform Connector Application</description>
     
     <url>https://github.com/SlinkySoftware/GCloud-PlatformConnectorPluginDemo</url>
@@ -34,7 +34,7 @@
         
         <plugin.id>demoPlugin</plugin.id>  <!-- This must be unique across all plugins loaded by the platform -->
         <plugin.class>com.slinkytoybox.gcloud.platformconnectorplugin.demo.PluginManager</plugin.class>
-        <plugin.version>0.0.1</plugin.version>
+        <plugin.version>0.0.2</plugin.version>
         <plugin.provider>Demo Provider</plugin.provider>
         <plugin.description>This plugin is a demo that does nothing that's of use</plugin.description>
         <plugin.dependencies/>

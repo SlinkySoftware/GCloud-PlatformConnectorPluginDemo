@@ -27,6 +27,7 @@ import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthState;
 import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthStatus;
 import com.slinkytoybox.gcloud.platformconnectorplugin.request.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.*;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,7 +101,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         CreateResponse response = new CreateResponse(); // Create new response object
 
         // TODO: Modify code here to do the actual work
-        Map<String, Object> objectDataMap = new HashMap<>();
+        Map<String, Serializable> objectDataMap = new HashMap<>();
         objectDataMap.put("Field1", "Value1");
         objectDataMap.put("Field2", 2);
         objectDataMap.put("Field3", OffsetDateTime.now().toString());
@@ -131,7 +132,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         UpdateResponse response = new UpdateResponse(); // Create new response object
 
         // TODO: Modify code here to do the actual work
-        Map<String, Object> objectDataMap = new HashMap<>();
+        Map<String, Serializable> objectDataMap = new HashMap<>();
         objectDataMap.put("Field1", "Value1");
         objectDataMap.put("Field2", 2);
         objectDataMap.put("Field3", OffsetDateTime.now().toString());
@@ -178,7 +179,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
             }
         }
 
-        Map<String, Object> objectDataMap = new HashMap<>();
+        Map<String, Serializable> objectDataMap = new HashMap<>();
         objectDataMap.put("Field1", "Value1");
         objectDataMap.put("Field2", 2);
         objectDataMap.put("Field3", OffsetDateTime.now().toString());
