@@ -19,6 +19,7 @@
  */
 package com.slinkytoybox.gcloud.platformconnectorplugin.demo;
 
+import com.slinkytoybox.gcloud.platformconnectorplugin.ContainerInterface;
 import com.slinkytoybox.gcloud.platformconnectorplugin.PlatformConnectorPlugin;
 import com.slinkytoybox.gcloud.platformconnectorplugin.PluginOperation;
 import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthResult;
@@ -109,6 +110,11 @@ public class PluginManager extends SpringPlugin {
         @Override
         public List<PluginOperation> getValidOperations() {
             return worker.getValidOperations();
+        }
+
+        @Override
+        public void setContainerInterface(ContainerInterface containerInterface) {
+            worker.setContainerInterface(containerInterface);
         }
         
         

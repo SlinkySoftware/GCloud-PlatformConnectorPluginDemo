@@ -19,12 +19,8 @@
  */
 package com.slinkytoybox.gcloud.platformconnectorplugin.demo;
 
-import com.slinkytoybox.gcloud.platformconnectorplugin.PlatformConnectorPlugin;
-import com.slinkytoybox.gcloud.platformconnectorplugin.PluginOperation;
-import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthMetric;
-import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthResult;
-import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthState;
-import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthStatus;
+import com.slinkytoybox.gcloud.platformconnectorplugin.*;
+import com.slinkytoybox.gcloud.platformconnectorplugin.health.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.request.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.PluginResponse.ResponseStatus;
@@ -61,6 +57,8 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
     private final String pluginDescription;
 
     private final List<PluginOperation> supportedOperations = new ArrayList<>();
+
+    private ContainerInterface container = null;
 
     // Custom Setup Routine
     private void pluginSetup() {
@@ -178,6 +176,9 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
                 response.setStatus(ResponseStatus.RECORD_NOT_FOUND);
                 return response;
             }
+            if (req.getObjectId().equalsIgnoreCase("sethealth")) {
+                setHealth();
+            }
         }
 
         Map<String, Serializable> objectDataMap = new HashMap<>();
@@ -219,6 +220,8 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
 
     }
 
+    // Called by the container to get the health statuses
+    // This should return the COMPLETE health picture.
     @Override
     public HealthResult getPluginHealth() {
         final String logPrefix = "getPluginHealth() - ";
@@ -245,6 +248,37 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         log.debug("{}Returning response: {}", logPrefix, response);
         return response;
 
+    }
+
+    /// Example fucntion to show how to "push" health changes to the container
+    // Note that this is the COMPLETE health picture including metrics, and not just the deltas
+    private void setHealth() {
+        final String logPrefix = "setHealth() - ";
+        log.trace("{}Entering Method", logPrefix);
+
+        if (container == null) {
+            log.warn("{}Container interface is not yet set. Not doing callback", logPrefix);
+            return;
+        }
+        // lets create some health details
+        Map<String, HealthStatus> componentStatus = new HashMap<>();
+        componentStatus.put("Component1", new HealthStatus().setHealthState(HealthState.HEALTHY));
+        componentStatus.put("Component2", new HealthStatus().setHealthState(HealthState.FAILED).setHealthComment("Database connection down"));
+        componentStatus.put("Component3", new HealthStatus().setHealthState(HealthState.WARNING).setHealthComment("Connected to backup API instance"));
+
+        List<HealthMetric> metrics = new ArrayList<>();
+        metrics.add(new HealthMetric().setMetricName("responseTime").setMetricValue(100));
+        metrics.add(new HealthMetric().setMetricName("SomeStringMetric").setMetricValue("string"));
+        metrics.add(new HealthMetric().setMetricName("dateTimeMetric").setMetricValue(OffsetDateTime.now()));
+
+        HealthResult response = new HealthResult()
+                .setOverallStatus(new HealthStatus().setHealthState(HealthState.WARNING)) // this is the most important thing to return
+                .setComponentStatus(componentStatus)
+                .setMetrics(metrics);
+
+        log.info("{}About to send the plugin health to container application", logPrefix);
+        container.setPluginHealth(pluginId, response);
+        log.trace("{}Leaving method", logPrefix);
     }
 
     /* 
@@ -283,6 +317,9 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         final String logPrefix = "destroy() - ";
         log.trace("{}Entering Method", logPrefix);
         log.info("{}Shutdown tasks for plugin running", logPrefix);
+        HealthResult response = new HealthResult().setOverallStatus(new HealthStatus().setHealthState(HealthState.FAILED).setHealthComment("Plugin shutting down"));
+        log.info("{}About to send the plugin health to container application", logPrefix);
+        container.setPluginHealth(pluginId, response);
         pluginDestroy();
         log.trace("{}Leaving Method", logPrefix);
 
@@ -343,6 +380,14 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
     @Override
     public List<PluginOperation> getValidOperations() {
         return supportedOperations;
+    }
+
+    @Override
+    public void setContainerInterface(ContainerInterface containerInterface) {
+        final String logPrefix = "setContainerInterface() - ";
+        log.trace("{}Entering Method", logPrefix);
+        log.info("{}Setting container interface", logPrefix);
+        this.container = containerInterface;
     }
 
 }
