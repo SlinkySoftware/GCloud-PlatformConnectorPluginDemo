@@ -238,6 +238,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         metrics.add(new HealthMetric().setMetricName("responseTime").setMetricValue(100));
         metrics.add(new HealthMetric().setMetricName("SomeStringMetric").setMetricValue("string"));
         metrics.add(new HealthMetric().setMetricName("dateTimeMetric").setMetricValue(OffsetDateTime.now()));
+        metrics.add(new HealthMetric().setMetricName("floatMetrics").setMetricValue(100.0/3.0));
 
         HealthResult response = new HealthResult()
                 .setOverallStatus(new HealthStatus().setHealthState(HealthState.HEALTHY)) // this is the most important thing to return
@@ -270,6 +271,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         metrics.add(new HealthMetric().setMetricName("responseTime").setMetricValue(100));
         metrics.add(new HealthMetric().setMetricName("SomeStringMetric").setMetricValue("string"));
         metrics.add(new HealthMetric().setMetricName("dateTimeMetric").setMetricValue(OffsetDateTime.now()));
+        metrics.add(new HealthMetric().setMetricName("floatMetrics").setMetricValue(100.0/3.0));
 
         HealthResult response = new HealthResult()
                 .setOverallStatus(new HealthStatus().setHealthState(HealthState.WARNING)) // this is the most important thing to return
