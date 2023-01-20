@@ -24,6 +24,7 @@ import com.slinkytoybox.gcloud.platformconnectorplugin.health.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.request.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.PluginResponse.ResponseStatus;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -51,6 +53,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class DemoPluginWorker implements PlatformConnectorPlugin {
+
+    private String buildArtifact;
+    private String buildVersion;
 
     private final Properties config;
     private final String pluginId;
@@ -238,7 +243,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         metrics.add(new HealthMetric().setMetricName("responseTime").setMetricValue(100));
         metrics.add(new HealthMetric().setMetricName("SomeStringMetric").setMetricValue("string"));
         metrics.add(new HealthMetric().setMetricName("dateTimeMetric").setMetricValue(OffsetDateTime.now()));
-        metrics.add(new HealthMetric().setMetricName("floatMetrics").setMetricValue(100.0/3.0));
+        metrics.add(new HealthMetric().setMetricName("floatMetrics").setMetricValue(100.0 / 3.0));
 
         HealthResult response = new HealthResult()
                 .setOverallStatus(new HealthStatus().setHealthState(HealthState.HEALTHY)) // this is the most important thing to return
@@ -271,7 +276,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         metrics.add(new HealthMetric().setMetricName("responseTime").setMetricValue(100));
         metrics.add(new HealthMetric().setMetricName("SomeStringMetric").setMetricValue("string"));
         metrics.add(new HealthMetric().setMetricName("dateTimeMetric").setMetricValue(OffsetDateTime.now()));
-        metrics.add(new HealthMetric().setMetricName("floatMetrics").setMetricValue(100.0/3.0));
+        metrics.add(new HealthMetric().setMetricName("floatMetrics").setMetricValue(100.0 / 3.0));
 
         HealthResult response = new HealthResult()
                 .setOverallStatus(new HealthStatus().setHealthState(HealthState.WARNING)) // this is the most important thing to return
@@ -308,6 +313,8 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         log.info("{}Configuration", logPrefix);
         log.info("{}", config);
         log.info("----------------------------------------------------------------------------");
+        buildVersion = config.getProperty("info.build.version", "unknown");
+        buildArtifact = config.getProperty("info.build.artifact", "unknown");
         pluginSetup();
 
         log.trace("{}Leaving Method", logPrefix);
@@ -390,6 +397,36 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
         log.trace("{}Entering Method", logPrefix);
         log.info("{}Setting container interface", logPrefix);
         this.container = containerInterface;
+    }
+
+    @Override
+    public SourceContainer getSourceCode() {
+        final String logPrefix = "getSourceCode() - ";
+        log.trace("{}Entering Method", logPrefix);
+        log.info("{}Getting source code for plugin", logPrefix);
+
+        SourceContainer sc = new SourceContainer();
+        sc.setUsesAGPL(true);
+
+        String fileName = buildArtifact + "-" + buildVersion + "-sources.jar";
+        log.debug("{}Reading source file from ClassPath: {}", logPrefix, fileName);
+        byte[] sourceCode = null;
+        try {
+            sourceCode = this.getClass().getResourceAsStream("/" + fileName).readAllBytes();
+        }
+        catch (IOException ex) {
+            log.error("{}Exception reading source", logPrefix);
+        }
+        sc.setSourceFileName(fileName);
+        sc.setSourceJar(sourceCode);
+
+        return sc;
+
+    }
+    
+    @Override
+    public boolean isSourceAvailable() {
+        return true;
     }
 
 }

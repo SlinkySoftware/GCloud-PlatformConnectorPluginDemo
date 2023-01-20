@@ -23,6 +23,7 @@ import com.slinkytoybox.gcloud.platformconnectorplugin.PlatformConnectorPlugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -37,7 +38,6 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class PluginConfiguration {
 
-
     @Bean
     public PlatformConnectorPlugin pluginInterface(ApplicationContext context) {
         final String logPrefix = "pluginInterface() - ";
@@ -50,6 +50,18 @@ public class PluginConfiguration {
         // Create a new properties class
         Properties pluginProperties = new Properties();
 
+        // Read the inbuilt application properties from the JAR file / Classpath
+        String appLoc = "/application.properties";
+        try ( InputStream appProp = PluginConfiguration.class.getResourceAsStream(appLoc)) {
+            log.trace("{}Using stream {}", logPrefix, PluginConfiguration.class.getResource(appLoc).toString());
+            pluginProperties.load(appProp);
+        }
+        catch (IOException | NullPointerException ex) {
+            log.error("{}IOException encountered when opening application.properties from the classpath. It may not exist", logPrefix, ex);
+        }
+
+        
+        // Read the external configuration properties from "pluginId.properties"
         log.info("{}Reading configuration for plugin", logPrefix);
         File currentJavaJarFile = new File(PluginConfiguration.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         String currentJavaJarFilePath = currentJavaJarFile.getAbsolutePath();

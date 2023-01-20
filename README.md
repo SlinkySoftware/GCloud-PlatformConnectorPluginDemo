@@ -6,6 +6,7 @@ The code can be checked out and then modified as per the below instructions to i
 
 ### Refactor the project
 * Refactor ```DemoPluginWorker.java``` to ```<YourPluginName>.java```
+	* This will require the last line of the ```pluginInterface``` method in ```PluginConfiguration.java``` to be modified to ```return new YourPluginName(parameters);```. Your IDE refactor function should take care of this.
 * Refactor plugin package. This can be any package name you like
 
 
@@ -45,25 +46,31 @@ Two methods control the plugin startup and shutdown. These are called from other
 * ```private void pluginDestroy()``` - This is called when your plugin is stopped by the container application. It should provide all shutdown functionality such as disconnecting to databases, cleanup, etc
 
 
-### Implement your health checks and metrics in <YourPluginName.java>
+### Implement your health checks and metrics in ```<YourPluginName.java>```
 Both of these functions should return the entire health status for the plugin, not just deltas. 
 * ```public HealthResult getPluginHealth()``` - This returns a HealthResult class with the the plugins status and any sub components, as called from the main container.
 * ```private void setHealth()``` - This is an example of how to push health using the ```container.setPluginHealth()``` function. It does not need to remain in your generated plugin. This functionality could be implemented in database connection routines, for example. 
 
 The health subsystem must report a main plugin HealthStatus class inside the HealthResult set with the setOverallStatus() function. 
 
-If the plugin is not reporting HealthState.HEALTHY or HealthState.WARNING it will not be used by the container application.
+If the plugin is not reporting ```HealthState.HEALTHY``` or ```HealthState.WARNING``` it will not be used by the container application.
 
 The following are the definitions for the four HealthState enumerations-
 
-* HEALTHY - Plugin is 100% functional
-* WARNING - Plugin has errors but these are not impacting operation. (Connected to a backup server for example)
-* FAILURE - Plugin has errors which prevent normal operation.
-* UNKNOWN - Plugin has not determined its health yet. A stopped plugin will return UNKNOWN in the container as it is not able to report its own status.
+* **HEALTHY** - Plugin is 100% functional
+* **WARNING** - Plugin has errors but these are not impacting operation. (Connected to a backup server for example)
+* **FAILURE** - Plugin has errors which prevent normal operation.
+* **UNKNOWN** - Plugin has not determined its health yet. A stopped plugin will return UNKNOWN in the container as it is not able to report its own status.
 
 In all cases, a text description can be returned in the HealthStatus class, which will be sent to the monitoring platform.
 
 The plugin can also report status of components, by creating a Map of ComponentName(String) to HealthStatus objects for each component. 
 These are not used by the container application to determine whether a plugin can be used (the plugin must decide and update its overall status) but will be returned to the monitoring platform.
 
-The Health subsystem also allows you to return metrics, which is a Map of String/Object pairs. This could include counters on number of requests, processing times, connection pool sizes, etc. There is no depenedency on these metrics by the container and will only be used by the monitoring platform.
+The Health subsystem also allows you to return metrics, which is a Map of String/Serializable pairs. This could include counters on number of requests, processing times, connection pool sizes, etc. There is no depenedency on these metrics by the container and will only be used by the monitoring platform. Metrics returned to monitoring platform will be classed into 3 different types. Integer, Float, and Text. This is done by checking the class of the Serializable passed into the map. 
+
+* *Integer* and *Long* classes are sent as int.
+* *Double* and *Float* classes are sent as float.
+* Any classes implementing *Temporal* (such as *OffsetDateTime* etc) are converted to ISO_DATE_TIME, and sent as text.
+* All other classes are sent as text.
+

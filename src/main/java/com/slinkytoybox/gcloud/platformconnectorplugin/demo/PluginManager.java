@@ -22,6 +22,7 @@ package com.slinkytoybox.gcloud.platformconnectorplugin.demo;
 import com.slinkytoybox.gcloud.platformconnectorplugin.ContainerInterface;
 import com.slinkytoybox.gcloud.platformconnectorplugin.PlatformConnectorPlugin;
 import com.slinkytoybox.gcloud.platformconnectorplugin.PluginOperation;
+import com.slinkytoybox.gcloud.platformconnectorplugin.SourceContainer;
 import com.slinkytoybox.gcloud.platformconnectorplugin.health.HealthResult;
 import com.slinkytoybox.gcloud.platformconnectorplugin.request.PluginRequest;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.PluginResponse;
@@ -94,14 +95,14 @@ public class PluginManager extends SpringPlugin {
         @Autowired
         public PluginWrapperExtension(final PlatformConnectorPlugin pluginInterface) {
             this.worker = pluginInterface;
-            
+
         }
 
         @Override
         public PluginResponse getResponseFromRequest(PluginRequest request) {
             return worker.getResponseFromRequest(request);
         }
-        
+
         @Override
         public HealthResult getPluginHealth() {
             return worker.getPluginHealth();
@@ -116,9 +117,16 @@ public class PluginManager extends SpringPlugin {
         public void setContainerInterface(ContainerInterface containerInterface) {
             worker.setContainerInterface(containerInterface);
         }
-        
-        
 
+        @Override
+        public SourceContainer getSourceCode() {
+            return worker.getSourceCode();
+        }
+
+        @Override
+        public boolean isSourceAvailable() {
+            return worker.isSourceAvailable();
+        }
     }
 
 }
