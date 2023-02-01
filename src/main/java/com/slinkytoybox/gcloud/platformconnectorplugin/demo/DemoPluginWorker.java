@@ -20,6 +20,7 @@
 package com.slinkytoybox.gcloud.platformconnectorplugin.demo;
 
 import com.slinkytoybox.gcloud.platformconnectorplugin.*;
+import com.slinkytoybox.gcloud.platformconnectorplugin.exceptions.PluginException;
 import com.slinkytoybox.gcloud.platformconnectorplugin.health.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.request.*;
 import com.slinkytoybox.gcloud.platformconnectorplugin.response.*;
@@ -35,7 +36,6 @@ import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -66,7 +66,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
     private ContainerInterface container = null;
 
     // Custom Setup Routine
-    private void pluginSetup() {
+    private void pluginSetup() throws PluginException {
         final String logPrefix = "pluginSetup() - ";
         log.trace("{}Entering Method", logPrefix);
 
@@ -302,7 +302,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
 
     // Initial post-construction routine - don't need to modify this, it calls the custom one
     @PostConstruct
-    private void setup() {
+    private void setup() throws PluginException {
         final String logPrefix = "setup() - ";
         log.trace("{}Entering Method", logPrefix);
         log.info("----------------------------------------------------------------------------");
