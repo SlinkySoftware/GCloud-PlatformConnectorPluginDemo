@@ -116,7 +116,7 @@ public class DemoPluginWorker implements PlatformConnectorPlugin {
                 .setRequestId(req.getRequestId())
                 .setStatus(ResponseStatus.SUCCESS)
                 .setObjectId("DemoCreateObjectId");
-
+       
         // END actual work code
         log.debug("{}Returning response: {}", logPrefix, response);
         return response;
